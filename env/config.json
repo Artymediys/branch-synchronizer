@@ -1,0 +1,26 @@
+{
+  "gitlab": {
+    "url": "https://gitlab.example.com",
+    "token": "your_gitlab_token",
+    "group_id": 1234
+  },
+  "telegram": {
+    "bot_token": "your_telegram_bot_token",
+    "channel_id": -1001234567890
+  },
+  "mattermost": {
+    "url": "https://mattermost.example.team",
+    "bot_token": "your_mattermost_bot_token",
+    "channel_id": "abde12fghijklmno3456pqr6s"
+  },
+  "branch_pairs": [
+    "production -> rc",
+    "rc -> master"
+  ],
+  "whitelist_projects": [
+    "project1",
+    "project2"
+  ],
+  "blacklist_projects": [],
+  "check_interval_in_hours": 1
+}
