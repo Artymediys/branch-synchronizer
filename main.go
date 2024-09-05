@@ -56,6 +56,8 @@ func main() {
 			log.Printf("Processing project \"%s\"\n", project.Name)
 			services.CheckBranchesAndCreateMR(glc, nc, config, project)
 			log.Printf("Finished with project \"%s\"\n", project.Name)
+
+			time.Sleep(20 * time.Second)
 		}
 
 		log.Println("Finished checking branches and processing MRs. Waiting for the next run...")
