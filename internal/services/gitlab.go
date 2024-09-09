@@ -48,7 +48,7 @@ func CheckBranchesAndCreateMR(glc *gitlab.Client, notifier *NotifierClient, conf
 				continue
 			}
 			message := fmt.Sprintf(
-				"Created MR for project **\"%s\"**\nBranches: `%s -> %s`\nMerge Request: [link](%s)",
+				"> Created MR for project **\"%s\"**\nBranches: `%s -> %s`\nMerge Request: [link](%s)",
 				project.Name, sourceBranch, targetBranch, mrURL,
 			)
 
