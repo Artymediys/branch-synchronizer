@@ -3,14 +3,32 @@ package utils
 import (
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func NewLogger() (*os.File, error) {
-	logFile, err := os.OpenFile("./log/bsync.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	execPath, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+	execDir := filepath.Dir(execPath)
+
+	logFilePath := filepath.Join(execDir, "log", "bsync.log")
+	logDir := filepath.Dir(logFilePath)
+
+	err = os.MkdirAll(logDir, 0777)
+	if err != nil {
+		return nil, err
+	}
+
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
 
 	log.SetOutput(logFile)
 	os.Stdout = logFile
 	os.Stderr = logFile
 
-	return logFile, err
+	return logFile, nil
 }
