@@ -10,7 +10,13 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
-func CheckBranchesAndCreateMR(glc *gitlab.Client, notifier *NotifierClient, config *env.Config, project *gitlab.Project) {
+func CheckBranchesAndCreateMR(
+	glc *gitlab.Client,
+	notifier *NotifierClient,
+	config *env.Config,
+	project *gitlab.Project,
+	mrCounter *uint,
+) {
 	for _, pair := range config.BranchPairs {
 		branches := strings.Split(pair, "->")
 		if len(branches) != 2 {
@@ -47,10 +53,13 @@ func CheckBranchesAndCreateMR(glc *gitlab.Client, notifier *NotifierClient, conf
 				log.Printf("Error creating MR for project %s: %v\n", project.Name, err)
 				continue
 			}
+
+			log.Printf("MR created: %s\n", mrURL)
 			message := fmt.Sprintf(
 				"> Created MR for project **\"%s\"**\nBranches: `%s -> %s`\nMerge Request: [link](%s)",
 				project.Name, sourceBranch, targetBranch, mrURL,
 			)
+			*mrCounter++
 
 			err = notifier.SendNotification(message)
 			if err != nil {

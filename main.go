@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"time"
 
@@ -52,12 +53,21 @@ func main() {
 			return
 		}
 
+		var mrCounter uint
 		for _, project := range projects {
 			log.Printf("Processing project \"%s\"\n", project.Name)
-			services.CheckBranchesAndCreateMR(glc, nc, config, project)
+			services.CheckBranchesAndCreateMR(glc, nc, config, project, &mrCounter)
 			log.Printf("Finished with project \"%s\"\n", project.Name)
 
 			time.Sleep(20 * time.Second)
+		}
+
+		if mrCounter == 0 {
+			message := fmt.Sprintf("No MRs have been created in the current run.\nGoing back to sleep 😴")
+			err = nc.SendNotification(message)
+			if err != nil {
+				log.Printf("Error sending notification about absence of MRs creation: %v\n", err)
+			}
 		}
 
 		log.Println("Finished checking branches and processing MRs. Waiting for the next run...")
