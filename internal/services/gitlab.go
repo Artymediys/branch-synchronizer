@@ -56,8 +56,9 @@ func CheckBranchesAndCreateMR(
 
 			log.Printf("MR created: %s\n", mrURL)
 			message := fmt.Sprintf(
-				"> Created MR for project **\"%s\"**\nBranches: `%s -> %s`\nMerge Request: [link](%s)",
-				project.Name, sourceBranch, targetBranch, mrURL,
+				"> Created new Merge Request!\nService name: **\"%s\"**\nProject name: **\"%s\"**\n"+
+					"Branches: `%s -> %s`\nMerge Request: [link](%s)",
+				getProjectPath(project), project.Name, sourceBranch, targetBranch, mrURL,
 			)
 			*mrCounter++
 
