@@ -28,8 +28,8 @@ func CheckBranchesAndCreateMR(
 		targetBranch := strings.TrimSpace(branches[1])
 
 		baseCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
-			From: &sourceBranch,
-			To:   &targetBranch,
+			From: &targetBranch,
+			To:   &sourceBranch,
 		})
 		if err != nil {
 			log.Printf("Error base comparing branches for project %s: %v\n", project.Name, err)
@@ -38,8 +38,8 @@ func CheckBranchesAndCreateMR(
 
 		isStraight := true
 		straightCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
-			From:     &sourceBranch,
-			To:       &targetBranch,
+			From:     &targetBranch,
+			To:       &sourceBranch,
 			Straight: &isStraight,
 		})
 		if err != nil {
@@ -47,7 +47,7 @@ func CheckBranchesAndCreateMR(
 			continue
 		}
 
-		if len(baseCompare.Diffs) > 0 || len(straightCompare.Diffs) > 0 {
+		if len(baseCompare.Commits) > 0 || len(straightCompare.Commits) > 0 {
 			mrURL, err := createMR(glc, project.ID, sourceBranch, targetBranch)
 			if err != nil {
 				log.Printf("Error creating MR for project %s: %v\n", project.Name, err)
