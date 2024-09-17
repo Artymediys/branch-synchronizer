@@ -27,6 +27,7 @@ func CheckBranchesAndCreateMR(
 		sourceBranch := strings.TrimSpace(branches[0])
 		targetBranch := strings.TrimSpace(branches[1])
 
+		log.Println("Comparing branches...")
 		baseCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
 			From: &targetBranch,
 			To:   &sourceBranch,
@@ -36,18 +37,20 @@ func CheckBranchesAndCreateMR(
 			continue
 		}
 
-		isStraight := true
-		straightCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
-			From:     &targetBranch,
-			To:       &sourceBranch,
-			Straight: &isStraight,
-		})
-		if err != nil {
-			log.Printf("Error straight comparing branches for project %s: %v\n", project.Name, err)
-			continue
-		}
+		//isStraight := true
+		//straightCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
+		//	From:     &targetBranch,
+		//	To:       &sourceBranch,
+		//	Straight: &isStraight,
+		//})
+		//if err != nil {
+		//	log.Printf("Error straight comparing branches for project %s: %v\n", project.Name, err)
+		//	continue
+		//}
 
-		if len(baseCompare.Commits) > 0 || len(straightCompare.Commits) > 0 {
+		// || len(straightCompare.Diffs) > 0
+		if len(baseCompare.Diffs) > 0 {
+			log.Println("Creating MR...")
 			mrURL, err := createMR(glc, project.ID, sourceBranch, targetBranch)
 			if err != nil {
 				log.Printf("Error creating MR for project %s: %v\n", project.Name, err)
@@ -62,10 +65,13 @@ func CheckBranchesAndCreateMR(
 			)
 			*mrCounter++
 
+			log.Println("Sending notification(s)...")
 			err = notifier.SendNotification(message)
 			if err != nil {
 				log.Printf("Error sending notification for project \"%s\": %v\n", project.Name, err)
 			}
+		} else {
+			log.Println("No Diffs were found")
 		}
 	}
 }
