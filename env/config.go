@@ -85,9 +85,5 @@ func (cfg *Config) validateConfig() error {
 		cfg.Mattermost.Enabled = false
 	}
 
-	if cfg.CheckIntervalInHours <= 0 {
-		cfg.CheckIntervalInHours = 24
-	}
-
 	return nil
 }

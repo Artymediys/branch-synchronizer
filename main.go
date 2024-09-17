@@ -45,33 +45,44 @@ func main() {
 		return
 	}
 
-	log.Println("The checking of projects has started.")
-	for {
-		projects, err := services.GetProjects(glc, config)
-		if err != nil {
-			log.Printf("Error retrieving projects: %v\n", err)
-			return
+	if config.CheckIntervalInHours <= 0 {
+		log.Println("The checking of projects has started.")
+		checkProjects(glc, nc, config)
+	} else {
+		for {
+			log.Println("The checking of projects has started.")
+			checkProjects(glc, nc, config)
+
+			log.Println("Waiting for the next run...")
+			time.Sleep(time.Duration(config.CheckIntervalInHours) * time.Hour)
 		}
-
-		var mrCounter uint
-		for _, project := range projects {
-			log.Printf("Processing project \"%s\"\n", project.Name)
-			services.CheckBranchesAndCreateMR(glc, nc, config, project, &mrCounter)
-			log.Printf("Finished with project \"%s\"\n", project.Name)
-
-			time.Sleep(20 * time.Second)
-		}
-
-		if mrCounter == 0 {
-			message := fmt.Sprintf("No MRs have been created in the current run.\nGoing back to sleep 😴")
-			err = nc.SendNotification(message)
-			if err != nil {
-				log.Printf("Error sending notification about absence of MRs creation: %v\n", err)
-			}
-		}
-
-		log.Println("Finished checking branches and processing MRs. Waiting for the next run...")
-
-		time.Sleep(time.Duration(config.CheckIntervalInHours) * time.Hour)
 	}
+}
+
+func checkProjects(glc *gitlab.Client, nc *services.NotifierClient, config *env.Config) {
+	projects, err := services.GetProjects(glc, config)
+	if err != nil {
+		log.Printf("Error retrieving projects: %v\n", err)
+		log.Println("Without projects it's impossible to do anything further.")
+		return
+	}
+
+	var mrCounter uint
+	for _, project := range projects {
+		log.Printf("Processing project \"%s\"\n", project.Name)
+		services.CheckBranchesAndCreateMR(glc, nc, config, project, &mrCounter)
+		log.Printf("Finished with project \"%s\"\n", project.Name)
+
+		time.Sleep(10 * time.Second)
+	}
+
+	if mrCounter == 0 {
+		message := fmt.Sprintf("No MRs have been created in the current run.\nGoing back to sleep 😴")
+		err = nc.SendNotification(message)
+		if err != nil {
+			log.Printf("Error sending notification about absence of MRs creation: %v\n", err)
+		}
+	}
+
+	log.Println("Finished checking branches and processing MRs.")
 }
