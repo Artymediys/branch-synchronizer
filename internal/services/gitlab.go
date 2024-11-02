@@ -27,7 +27,7 @@ func CheckBranchesAndCreateMR(
 		sourceBranch := strings.TrimSpace(branches[0])
 		targetBranch := strings.TrimSpace(branches[1])
 
-		log.Println("Comparing branches...")
+		log.Printf("Comparing branches \"%s\" -> \"%s\"...", sourceBranch, targetBranch)
 		baseCompare, _, err := glc.Repositories.Compare(project.ID, &gitlab.CompareOptions{
 			From: &targetBranch,
 			To:   &sourceBranch,
